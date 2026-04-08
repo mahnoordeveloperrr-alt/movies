@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>CineSplit | Ultimate Cinema Experience</title>
+    <!-- Fonts & Libraries -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0B0B0B;
+            overflow-x: hidden;
+            color: #FFFFFF;
+        }
+
+        /* Split Layout */
+        .split-container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .visual-side {
+            flex: 1;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .visual-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            animation: slowZoom 20s infinite alternate;
+            transition: background-image 0.5s ease-in-out;
+        }
+
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.08); }
+        }
+
+        .visual-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 70%);
+            z-index: 1;
+        }
+
+        .visual-content {
+            position: absolute;
+            bottom: 10%;
+            left: 8%;
+            z-index: 2;
+        }
+
+        .visual-content h3 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 3.5rem;
+            color: #FFD700;
+            text-shadow: 0 2px 15px black;
+        }
+
+        .visual-content p {
+            font-size: 1rem;
+            color: #f0f0f0;
+        }
+
+        .content-side {
+            flex: 1;
+            background: #121212;
+            overflow-y: auto;
+            height: 100vh;
+            position: relative;
+        }
+
+        .video-background {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 50%;
+            height: 100vh;
+            object-fit: cover;
+            filter: brightness(0.35);
+            pointer-events: none;
+        }
+
+        .scrollable-overlay {
+            position: relative;
+            z-index: 10;
+            background: rgba(10, 10, 10, 0.88);
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .movie-title-big {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, #FFD700, #FFB347);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .rating-gold {
+            color: #FFD700;
+        }
+
+        .btn-red {
+            background: #E50914;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s;
+        }
+
+        .btn-red:hover {
+            background: #b00710;
+            transform: scale(1.03);
+        }
+
+        .btn-outline-light {
+            background: transparent;
+            border: 1.5px solid #FFD700;
+            color: #FFD700;
+            padding: 11px 24px;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .btn-outline-light:hover {
+            background: #FFD700;
+            color: #000;
+        }
+
+        .review-card {
+            background: rgba(25, 25, 25, 0.95);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #E50914;
+        }
+
+        .dual-panel {
+            display: flex;
+            gap: 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            margin: 2rem 0 1rem;
+            border-left: 5px solid #E50914;
+            padding-left: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Movie Card Styling */
+        .movie-card {
+            background: #1a1a1a;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.2s;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(229, 9, 20, 0.3);
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+        }
+
+        .movie-card .info {
+            padding: 12px;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-nav a {
+            color: white;
+            font-size: 1.3rem;
+            transition: color 0.2s;
+        }
+
+        .sidebar-nav a:hover {
+            color: #E50914;
+        }
+
+        /* Cast Grid */
+        .cast-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .cast-card {
+            text-align: center;
+            background: rgba(30, 30, 30, 0.8);
+            padding: 1rem;
+            border-radius: 15px;
+            transition: all 0.2s;
+        }
+
+        .cast-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 8px;
+            border: 2px solid #E50914;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .stat-item {
+            background: rgba(229, 9, 20, 0.15);
+            padding: 1rem;
+            border-radius: 15px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #FFD700;
+        }
+
+        .streaming-badge {
+            display: inline-block;
+            background: #1a1a1a;
+            padding: 8px 16px;
+            border-radius: 30px;
+            margin: 5px;
+            border: 1px solid #333;
+        }
+
+        .rating-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .rating-label {
+            width: 60px;
+        }
+
+        .rating-progress {
+            flex: 1;
+            height: 8px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .rating-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #E50914, #FFD700);
+            border-radius: 10px;
+        }
+
+        .award-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 215, 0, 0.15);
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin: 5px;
+        }
+
+        /* Swiper Custom Arrows & Pagination */
+        .swiper-pagination-bullet {
+            background: #888 !important;
+        }
+        .swiper-pagination-bullet-active {
+            background: #E50914 !important;
+        }
+        .featured-carousel-container {
+            position: relative;
+            margin: 1rem 0 2rem;
+        }
+        .swiper-button-next-custom, .swiper-button-prev-custom {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45px;
+            height: 45px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            color: #FFD700;
+            font-size: 1.4rem;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255,215,0,0.4);
+        }
+        .swiper-button-next-custom:hover, .swiper-button-prev-custom:hover {
+            background: #E50914;
+            color: white;
+            border-color: #E50914;
+            transform: translateY(-50%) scale(1.05);
+        }
+        .swiper-button-prev-custom {
+            left: -10px;
+        }
+        .swiper-button-next-custom {
+            right: -10px;
+        }
+        
+        /* ========== FIXED RESPONSIVE BEHAVIOR ========== */
+        /* On mobile: stack columns, left visual side appears at top (not sticky) */
+        @media (max-width: 768px) {
+            .swiper-button-prev-custom { left: -5px; width: 35px; height: 35px; font-size: 1rem; }
+            .swiper-button-next-custom { right: -5px; width: 35px; height: 35px; font-size: 1rem; }
+            
+            .split-container {
+                flex-direction: column;
+            }
+            /* Visual side becomes normal block, NOT sticky, appears at top */
+            .visual-side {
+                position: relative;
+                top: auto;
+                height: 55vh;     /* Balanced cinematic height on mobile, appears at top */
+                min-height: 320px;
+                width: 100%;
+                flex: none;
+                display: block;
+            }
+            .visual-bg {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            /* Content side flows naturally after visual side */
+            .content-side {
+                height: auto;
+                width: 100%;
+                flex: none;
+            }
+            .video-background {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                object-fit: cover;
+            }
+            .scrollable-overlay {
+                backdrop-filter: blur(12px);
+                background: rgba(10, 10, 10, 0.92);
+                padding: 1.5rem;
+            }
+            .movie-title-big {
+                font-size: 2.5rem;
+            }
+            .dual-panel {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .sidebar-nav {
+                display: none;
+            }
+            .cast-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .visual-content h3 {
+                font-size: 2.4rem;
+            }
+            .visual-content p {
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Extra small devices */
+        @media (max-width: 480px) {
+            .visual-side {
+                height: 48vh;
+            }
+            .scrollable-overlay {
+                padding: 1rem;
+            }
+            .btn-red, .btn-outline-light {
+                padding: 8px 18px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-nav">
+    <a href="#" onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})"><i class="fas fa-home"></i></a>
+    <a href="#" onclick="document.getElementById('stats').scrollIntoView({behavior:'smooth'})"><i class="fas fa-chart-bar"></i></a>
+    <a href="#" onclick="document.getElementById('cast').scrollIntoView({behavior:'smooth'})"><i class="fas fa-users"></i></a>
+    <a href="#" onclick="document.getElementById('featured').scrollIntoView({behavior:'smooth'})"><i class="fas fa-film"></i></a>
+    <a href="#" onclick="document.getElementById('streaming').scrollIntoView({behavior:'smooth'})"><i class="fas fa-play-circle"></i></a>
+</div>
+
+<div class="split-container">
+    <!-- LEFT VISUAL SIDE (Appears at top on mobile) -->
+    <div class="visual-side">
+        <div class="visual-bg" id="dynamicPoster" style="background-image: url('https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200&h=800&fit=crop');"></div>
+        <div class="visual-overlay"></div>
+        <div class="visual-content">
+            <h3 id="visualMovieTitle">RAGING FURY</h3>
+            <p id="visualTagline">Justice has a new face.</p>
+            <div style="margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
+                <span class="award-badge"><i class="fas fa-trophy" style="color:#FFD700;"></i> Oscar Winner</span>
+                <span class="award-badge"><i class="fas fa-star" style="color:#FFD700;"></i> <span id="visualRating">8.7</span>/10 IMDb</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT CONTENT SIDE -->
+    <div class="content-side">
+        <video class="video-background" autoplay loop muted playsinline>
+            <source src="https://videos.pexels.com/video-files/3129957/3129957-hd_1920_1080_30fps.mp4" type="video/mp4">
+        </video>
+        
+        <div class="scrollable-overlay">
+            <!-- HOME Section with dynamic image on the right side (poster style) -->
+            <div id="home">
+                <div style="display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-start; margin-bottom: 1rem;">
+                    <div style="flex: 2; min-width: 200px;">
+                        <h1 class="movie-title-big" id="rightMovieTitle">RAGING FURY</h1>
+                        <div style="display: flex; gap: 15px; margin: 10px 0; flex-wrap: wrap;">
+                            <span class="rating-gold"><i class="fas fa-star"></i> <strong id="movieRating">8.7/10</strong></span>
+                            <span id="movieYear">2025</span>
+                            <span><i class="fas fa-clock"></i> 2h 22m</span>
+                            <span class="genre-tag" style="background:rgba(229,9,20,0.3); padding:3px 12px; border-radius:20px;">Action</span>
+                            <span class="genre-tag" style="background:rgba(229,9,20,0.3); padding:3px 12px; border-radius:20px;">Thriller</span>
+                        </div>
+                        <p id="movieOverview" style="margin: 15px 0; line-height: 1.6; font-size: 1.05rem;">A relentless vigilante takes down a crime syndicate using brutal combat skills. The city's fate hangs in balance.</p>
+                        <div style="display: flex; gap: 16px; margin: 24px 0; flex-wrap: wrap;">
+                            <button class="btn-red" onclick="document.getElementById('trailerModal').style.display='flex'">
+                                <i class="fas fa-play"></i> Watch Trailer
+                            </button>
+                            <button class="btn-outline-light" id="watchlistBtn">
+                                <i class="fas fa-plus"></i> Add to Watchlist
+                            </button>
+                            <button class="btn-outline-light" id="shareBtn">
+                                <i class="fas fa-share-alt"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Right Side Movie Poster Image (same as current movie's poster) -->
+                    <div style="flex: 1; min-width: 160px; text-align: center;">
+                        <img id="rightSidePosterImg" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=450&fit=crop" alt="movie_poster_renamed" style="width: 100%; max-width: 240px; border-radius: 24px; box-shadow: 0 20px 35px rgba(0,0,0,0.5); border: 2px solid rgba(255,215,0,0.3); transition: transform 0.3s;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATS Section -->
+            <div id="stats">
+                <h2 class="section-title"><i class="fas fa-chart-simple"></i> Movie Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="criticScore">89</div>
+                        <div>Critics Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="audienceScore">93</div>
+                        <div>Audience Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">$520M</div>
+                        <div>Box Office</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">#1</div>
+                        <div>Trending</div>
+                    </div>
+                </div>
+                
+                <div class="review-card" style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 15px;"><i class="fas fa-star rating-gold"></i> Rating Breakdown</h4>
+                    <div class="rating-bar"><span class="rating-label">5 Stars</span><div class="rating-progress"><div class="rating-fill" style="width: 68%"></div></div><span>68%</span></div>
+                    <div class="rating-bar"><span class="rating-label">4 Stars</span><div class="rating-progress"><div class="rating-fill" style="width: 18%"></div></div><span>18%</span></div>
+                    <div class="rating-bar"><span class="rating-label">3 Stars</span><div class="rating-progress"><div class="rating-fill" style="width: 8%"></div></div><span>8%</span></div>
+                    <div class="rating-bar"><span class="rating-label">2 Stars</span><div class="rating-progress"><div class="rating-fill" style="width: 4%"></div></div><span>4%</span></div>
+                    <div class="rating-bar"><span class="rating-label">1 Star</span><div class="rating-progress"><div class="rating-fill" style="width: 2%"></div></div><span>2%</span></div>
+                </div>
+            </div>
+
+            <!-- CAST Section -->
+            <div id="cast">
+                <h2 class="section-title"><i class="fas fa-user-circle"></i> Top Cast</h2>
+                <div class="cast-grid" id="castGrid"></div>
+            </div>
+
+            <!-- DUAL PERSPECTIVE -->
+            <div class="dual-panel">
+                <div style="flex:1; text-align:center;"><i class="fas fa-microphone-alt fa-2x rating-gold"></i><h3 style="color:#FFD700; font-size:2rem;">92%</h3><span>Rotten Tomatoes</span><p style="font-size:0.85rem; margin-top:8px;">Certified Fresh</p></div>
+                <div style="flex:1; text-align:center;"><i class="fas fa-imdb fa-2x rating-gold"></i><h3 style="color:#FFD700; font-size:2rem;" id="imdbValue">8.7</h3><span>IMDb Rating</span><p style="font-size:0.85rem; margin-top:8px;">45K User Ratings</p></div>
+                <div style="flex:1; text-align:center;"><i class="fas fa-fire fa-2x rating-gold"></i><h3 style="color:#FFD700; font-size:2rem;">97%</h3><span>Google Users</span><p style="font-size:0.85rem; margin-top:8px;">Liked this movie</p></div>
+            </div>
+
+            <!-- STREAMING Section -->
+            <div id="streaming">
+                <h2 class="section-title"><i class="fas fa-tv"></i> Where to Watch</h2>
+                <div class="review-card"><div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;"><span class="streaming-badge"><i class="fab fa-netflix" style="color:#E50914;"></i> Netflix</span><span class="streaming-badge"><i class="fab fa-amazon" style="color:#FF9900;"></i> Prime Video</span><span class="streaming-badge"><i class="fab fa-apple" style="color:#fff;"></i> Apple TV+</span><span class="streaming-badge"><i class="fas fa-film"></i> In Theaters</span></div><p style="margin-top: 15px; text-align: center; opacity: 0.8;"><i class="fas fa-calendar-check"></i> Available in 4K HDR • Dolby Atmos</p></div>
+            </div>
+
+            <!-- FEATURED Section - More Like This (Movies Carousel with Navigation Arrows) -->
+            <div id="featured">
+                <h2 class="section-title"><i class="fas fa-fire"></i> More Like This</h2>
+                <div class="featured-carousel-container">
+                    <div class="swiper mySwiper">
+                        <div class="swiper-wrapper" id="movieCarousel"></div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                    <!-- Custom Navigation Arrows -->
+                    <div class="swiper-button-prev-custom" id="customPrevBtn"><i class="fas fa-chevron-left"></i></div>
+                    <div class="swiper-button-next-custom" id="customNextBtn"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+
+            <!-- REVIEWS Section -->
+            <div id="reviews">
+                <h2 class="section-title"><i class="fas fa-comment-dots"></i> Critic Reviews</h2>
+                <div id="reviewsContainer">
+                    <div class="review-card"><div style="display: flex; gap: 15px; align-items: start;"><i class="fas fa-user-circle fa-2x rating-gold"></i><div><h4>John Anderson <span style="color:#FFD700; margin-left:10px;">★★★★★</span></h4><p style="opacity:0.7; font-size:0.85rem;">Variety • Top Critic</p><p>"A brutal ballet of action and emotion. Instant classic."</p></div></div></div>
+                    <div class="review-card"><div style="display: flex; gap: 15px; align-items: start;"><i class="fas fa-user-circle fa-2x rating-gold"></i><div><h4>Sarah Chen <span style="color:#FFD700; margin-left:10px;">★★★★½</span></h4><p style="opacity:0.7; font-size:0.85rem;">Hollywood Reporter</p><p>"Keanu delivers his most ferocious performance yet. Unmissable."</p></div></div></div>
+                    <div class="review-card"><div style="display: flex; gap: 15px; align-items: start;"><i class="fas fa-user-circle fa-2x rating-gold"></i><div><h4>Mike Roberts <span style="color:#FFD700; margin-left:10px;">★★★★</span></h4><p style="opacity:0.7; font-size:0.85rem;">Empire Magazine</p><p>"High-octane fight choreography that redefines the genre."</p></div></div></div>
+                </div>
+            </div>
+
+            <!-- AWARDS Section -->
+            <div style="margin: 2rem 0;"><h2 class="section-title"><i class="fas fa-medal"></i> Awards & Nominations</h2><div class="review-card"><div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;"><div><i class="fas fa-trophy fa-2x" style="color:#FFD700;"></i><p><strong>Best Action Film</strong></p><p style="opacity:0.7;">Critics Choice Awards</p></div><div><i class="fas fa-award fa-2x" style="color:#C0C0C0;"></i><p><strong>Best Visual Effects</strong></p><p style="opacity:0.7;">Academy Awards (Nom)</p></div><div><i class="fas fa-star fa-2x" style="color:#CD7F32;"></i><p><strong>Best Stunt Work</strong></p><p style="opacity:0.7;">SAG Awards</p></div></div></div></div>
+
+            <footer style="margin-top: 3rem; text-align: center; color: #888; padding: 2rem 0; border-top: 1px solid #333;"><p><i class="fas fa-film"></i> CineSplit — The Ultimate Cinematic Experience</p><p style="margin-top: 10px;"><i class="fab fa-facebook"></i> <i class="fab fa-instagram" style="margin:0 15px;"></i> <i class="fab fa-twitter"></i> <i class="fab fa-youtube" style="margin-left:15px;"></i></p><p style="margin-top: 15px; font-size: 0.8rem;">© 2025 CineSplit. All rights reserved.</p></footer>
+        </div>
+    </div>
+</div>
+
+<!-- Trailer Modal -->
+<div id="trailerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:2000; align-items:center; justify-content:center;" onclick="this.style.display='none'">
+    <div style="width:80%; max-width:900px;" onclick="event.stopPropagation()">
+        <div style="text-align:right; padding:10px;"><button onclick="document.getElementById('trailerModal').style.display='none'" style="background:none; border:none; color:white; font-size:30px; cursor:pointer;">&times;</button></div>
+        <iframe id="trailerIframe" width="100%" height="450" src="https://www.youtube.com/embed/YoHD9XEInc0" frameborder="0" allowfullscreen></iframe>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+    // ==============================================
+    // MOVIE DATABASE - all original images, names, videos preserved
+    // ==============================================
+    const moviesData = [
+        {
+            id: "mv_raging_fury_01",
+            title: "INCEPTION",
+            year: 2025,
+            rating: 8.7,
+            critic: 89,
+            audience: 93,
+            poster: "img/inception movie poster.jpg",
+            backdrop: "img/inception.jpg",
+            overview: "A relentless vigilante takes down a crime syndicate using brutal combat skills. The city's fate hangs in balance.",
+            tagline: "Justice has a new face.",
+            trailer: "https://www.youtube.com/embed/YoHD9XEInc0",
+            cast: [
+                { name: "Keanu Reeves", role: "John Steel", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" },
+                { name: "Halle Berry", role: "Detective Rosa", img: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100&h=100&fit=crop" },
+                { name: "Donnie Yen", role: "Kai", img: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100&h=100&fit=crop" },
+                { name: "Jessica Henwick", role: "Nina", img: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100&h=100&fit=crop" }
+            ]
+        },
+        {
+            id: "mv_cosmic_frontier_02",
+            title: "interstellar",
+            year: 2024,
+            rating: 9.0,
+            critic: 94,
+            audience: 91,
+            poster: "img/interstellar poster redesign.jpg",
+            backdrop: "img/download (6).jpg",
+            overview: "Astronauts uncover a celestial mystery that redefines human existence. A breathtaking journey across galaxies.",
+            tagline: "Beyond the stars, beyond fear.",
+            trailer: "https://www.youtube.com/embed/zSWdZVtXT7E",
+            cast: [
+                { name: "Matthew McConaughey", role: "Commander West", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop" },
+                { name: "Anne Hathaway", role: "Dr. Amelia", img: "https://images.unsplash.com/photo-1494790108755-2616d3761a5f?w=100&h=100&fit=crop" },
+                { name: "Mahershala Ali", role: "Lt. Harris", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop" },
+                { name: "Lupita Nyong'o", role: "Commms Officer", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop" }
+            ]
+        },
+        {
+            id: "mv_neon_serenade_03",
+            title: "Dark Knight",
+            year: 2024,
+            rating: 8.1,
+            critic: 80,
+            audience: 85,
+            poster: "img/The Dark Knight Movie.jpg",
+            backdrop: "img/Dark Knight.jpg",
+            overview: "A synthwave noir thriller where a rogue detective chases a ghost through neon-drenched streets.",
+            tagline: "The city bleeds color.",
+            trailer: "https://www.youtube.com/embed/EXeTwQWrcwY",
+            cast: [
+                { name: "Ryan Gosling", role: "Detective Gray", img: "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=100&h=100&fit=crop" },
+                { name: "Ana de Armas", role: "Mysterious Iris", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop" },
+                { name: "Jared Leto", role: "The DJ", img: "https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=100&h=100&fit=crop" },
+                { name: "Zendaya", role: "Hacker Lyric", img: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100&h=100&fit=crop" }
+            ]
+        },
+        {
+            id: "mv_summit_dreams_04",
+            title: "Mad Max",
+            year: 2023,
+            rating: 8.3,
+            critic: 84,
+            audience: 87,
+            poster: "img/Why Mad Max_ Fury Road Is Still the Most Insane Chase Film Ever!”.jpg",
+            backdrop: "img/Mad Max_ Fury Road 2015.jpg",
+            overview: "Climbers face impossible odds to reach the world's deadliest peak, battling nature and inner demons.",
+            tagline: "The mountain chooses.",
+            trailer: "https://www.youtube.com/embed/hEJnMQG9ev8",
+            cast: [
+                { name: "Chris Hemsworth", role: "Lead Climber", img: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100&h=100&fit=crop" },
+                { name: "Brie Larson", role: "Rescue Medic", img: "https://images.unsplash.com/photo-1494790108755-2616d3761a5f?w=100&h=100&fit=crop" },
+                { name: "Oscar Isaac", role: "Guide", img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop" }
+            ]
+        },
+        {
+            id: "mv_abyssal_awakening_05",
+            title: "Blade Runner",
+            year: 2025,
+            rating: 8.4,
+            critic: 86,
+            audience: 88,
+            poster: "img/Blade Runner 2049 (2017).jpg",
+            backdrop: "img/Blade Runner 2049 poster.jpg",
+            overview: "Deep sea explorers awaken an ancient predator. A fight for survival in the darkest trenches.",
+            tagline: "Fear the depths.",
+            trailer: "https://www.youtube.com/embed/gCcx85zbxz4",
+            cast: [
+                { name: "Jason Momoa", role: "Captain Nemo", img: "https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=100&h=100&fit=crop" },
+                { name: "Emily Blunt", role: "Dr. Marina", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop" },
+                { name: "Winston Duke", role: "Engineer", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop" }
+            ]
+        }
+    ];
+
+    let currentMovie = moviesData[0];
+    let swiperInstance = null;
+
+    function updateMovie(movie) {
+        currentMovie = movie;
+        document.getElementById('dynamicPoster').style.backgroundImage = `url('${movie.backdrop}')`;
+        document.getElementById('visualMovieTitle').innerText = movie.title;
+        document.getElementById('visualTagline').innerText = movie.tagline;
+        document.getElementById('visualRating').innerText = movie.rating;
+        document.getElementById('rightMovieTitle').innerText = movie.title;
+        document.getElementById('movieRating').innerHTML = `${movie.rating}/10`;
+        document.getElementById('movieYear').innerText = movie.year;
+        document.getElementById('movieOverview').innerText = movie.overview;
+        document.getElementById('criticScore').innerHTML = movie.critic;
+        document.getElementById('audienceScore').innerHTML = movie.audience;
+        document.getElementById('imdbValue').innerHTML = movie.rating;
+        document.getElementById('trailerIframe').src = movie.trailer;
+        
+        const rightPoster = document.getElementById('rightSidePosterImg');
+        if (rightPoster) {
+            rightPoster.src = movie.poster;
+            rightPoster.alt = `${movie.title.replace(/\s/g, '_')}_poster_right`;
+        }
+        
+        const castGrid = document.getElementById('castGrid');
+        castGrid.innerHTML = movie.cast.map(actor => `
+            <div class="cast-card">
+                <img src="${actor.img}" alt="${actor.name.replace(/\s/g, '_')}_profile" loading="lazy">
+                <h5>${actor.name}</h5>
+                <small style="opacity:0.7;">${actor.role}</small>
+            </div>
+        `).join('');
+    }
+
+    function buildCarousel() {
+        const wrapper = document.getElementById('movieCarousel');
+        wrapper.innerHTML = moviesData.map(movie => `
+            <div class="swiper-slide">
+                <div class="movie-card" data-movie-id="${movie.id}" onclick='updateMovie(${JSON.stringify(movie).replace(/'/g, "&apos;")})'>
+                    <img src="${movie.poster}" alt="${movie.title.replace(/\s/g, '_')}_carousel" loading="lazy">
+                    <div class="info">
+                        <h4>${movie.title}</h4>
+                        <div class="rating-gold"><i class="fas fa-star"></i> ${movie.rating}/10</div>
+                        <small>${movie.year}</small>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        if (swiperInstance) swiperInstance.destroy(true, true);
+        swiperInstance = new Swiper('.mySwiper', {
+            slidesPerView: 1.5,
+            spaceBetween: 15,
+            breakpoints: { 640: { slidesPerView: 2.5 }, 1024: { slidesPerView: 3.5 } },
+            pagination: { el: '.swiper-pagination', clickable: true },
+            navigation: { nextEl: '.swiper-button-next-custom', prevEl: '.swiper-button-prev-custom' }
+        });
+    }
+
+    buildCarousel();
+    updateMovie(moviesData[0]);
+
+    document.getElementById('watchlistBtn').addEventListener('click', () => { alert(`✅ "${currentMovie.title}" added to your watchlist!`); });
+    document.getElementById('shareBtn').addEventListener('click', () => { alert(`🔗 Share "${currentMovie.title}" with friends!\nCineSplit exclusive: cinesplit.com/movie/${currentMovie.id}`); });
+    
+    const bgVideo = document.querySelector('.video-background');
+    if (bgVideo) { bgVideo.play().catch(() => { document.body.addEventListener('click', () => bgVideo.play(), { once: true }); }); }
+    
+    document.getElementById('customPrevBtn')?.addEventListener('click', () => swiperInstance?.slidePrev());
+    document.getElementById('customNextBtn')?.addEventListener('click', () => swiperInstance?.slideNext());
+</script>
+</body>
+</html>
